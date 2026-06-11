@@ -1,8 +1,40 @@
+import { useEffect, useState } from 'react'
+
 const GITHUB = 'https://github.com/dddz223'
 
+function useScrollReveal() {
+  useEffect(() => {
+    const els = Array.from(document.querySelectorAll('.reveal'))
+    if (!('IntersectionObserver' in window)) {
+      els.forEach((el) => el.classList.add('is-visible'))
+      return
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible')
+            io.unobserve(entry.target)
+          }
+        })
+      },
+      { threshold: 0.15, rootMargin: '0px 0px -8% 0px' },
+    )
+    els.forEach((el) => io.observe(el))
+    return () => io.disconnect()
+  }, [])
+}
+
 function Nav() {
+  const [scrolled, setScrolled] = useState(false)
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 10)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
   return (
-    <nav className="nav">
+    <nav className={scrolled ? 'nav scrolled' : 'nav'}>
       <div className="nav-inner">
         <a href="#" className="nav-logo">
           Woojin Oh
@@ -21,24 +53,54 @@ function Nav() {
 function Hero() {
   return (
     <header className="hero">
-      <div className="container">
-        <p className="hero-eyebrow fade-in fade-in-1">
-          Full-stack Developer · AI Game Software
-        </p>
-        <h1 className="hero-name fade-in fade-in-2">
-          혼자지만,
-          <br />
-          <em>혼자가 아닌 방식</em>으로
-          <br />
-          일합니다.
+      <div className="container hero-inner">
+        <p className="hero-eyebrow">Full-stack Developer · AI Game Software</p>
+        <h1 className="hero-name">
+          <span className="hero-line">
+            <span className="hero-line-inner">혼자지만,</span>
+          </span>
+          <span className="hero-line">
+            <span className="hero-line-inner">
+              <em>혼자가 아닌 방식</em>으로
+            </span>
+          </span>
+          <span className="hero-line">
+            <span className="hero-line-inner">
+              일합니다<span className="title-dot">.</span>
+            </span>
+          </span>
         </h1>
-        <p className="hero-tagline fade-in fade-in-3">
+        <p className="hero-tagline">
           AI를 동료처럼 활용해 기획부터 배포까지 혼자 끝내는 풀스택
           개발자 오우진입니다. 지금 이 순간에도 제가 만든 서비스가 실제
           사용자를 만나고 있습니다.
         </p>
+        <div className="hero-foot">
+          <span className="hero-scroll">
+            Scroll
+            <span className="hero-scroll-line" aria-hidden="true" />
+          </span>
+          <span className="hero-live">
+            <span className="live-dot" aria-hidden="true" />
+            2 services live now
+          </span>
+        </div>
       </div>
     </header>
+  )
+}
+
+function SectionHead({ no, label }: { no: string; label: string }) {
+  return (
+    <div className="section-head reveal">
+      <p className="section-eyebrow">
+        {no} — {label}
+      </p>
+      <h2 className="section-title">
+        {label}
+        <span className="title-dot">.</span>
+      </h2>
+    </div>
   )
 }
 
@@ -46,8 +108,8 @@ function About() {
   return (
     <section id="about">
       <div className="container">
-        <h2 className="section-title">About</h2>
-        <div className="about-body">
+        <SectionHead no="01" label="About" />
+        <div className="about-body reveal reveal-d1">
           <p>
             명지전문대학 AI게임소프트웨어과에서 공부하며, 지난 6개월간
             트레이딩 카드 P2P 거래 PWA <strong>POCA</strong>를 혼자
@@ -93,10 +155,10 @@ function Skills() {
   return (
     <section id="skills">
       <div className="container">
-        <h2 className="section-title">Skills</h2>
+        <SectionHead no="02" label="Skills" />
         <div className="skills-grid">
-          {groups.map((g) => (
-            <div className="skill-group" key={g.title}>
+          {groups.map((g, i) => (
+            <div className={`skill-group reveal reveal-d${i + 1}`} key={g.title}>
               <h3>{g.title}</h3>
               <ul>
                 {g.items.map((item) => (
@@ -115,16 +177,17 @@ function Projects() {
   return (
     <section id="projects">
       <div className="container">
-        <h2 className="section-title">Projects</h2>
+        <SectionHead no="03" label="Projects" />
 
-        <article className="project">
-          <div className="project-head">
-            <h3 className="project-name">POCA</h3>
+        <article className="project reveal">
+          <div className="project-meta">
+            <span className="project-year">2025 — 2026</span>
             <span className="live-badge">
               <span className="live-dot" aria-hidden="true" />
               LIVE
             </span>
           </div>
+          <h3 className="project-name">POCA</h3>
           <p className="project-desc">
             트레이딩 카드 수집가를 위한 도감 + P2P 거래 PWA. 기획,
             디자인, DB 설계, 개발, 배포, 운영까지 전 과정을 혼자
@@ -148,6 +211,7 @@ function Projects() {
               rel="noreferrer"
             >
               Live 서비스 보기
+              <span className="btn-arrow" aria-hidden="true">→</span>
             </a>
             <a
               className="btn btn-ghost"
@@ -156,18 +220,20 @@ function Projects() {
               rel="noreferrer"
             >
               GitHub
+              <span className="btn-arrow" aria-hidden="true">→</span>
             </a>
           </div>
         </article>
 
-        <article className="project">
-          <div className="project-head">
-            <h3 className="project-name">TCG Tracker</h3>
+        <article className="project reveal">
+          <div className="project-meta">
+            <span className="project-year">2026</span>
             <span className="live-badge">
               <span className="live-dot" aria-hidden="true" />
               LIVE
             </span>
           </div>
+          <h3 className="project-name">TCG Tracker</h3>
           <p className="project-desc">
             TCG 판매 업체를 위한 모바일 재고 관리 웹. 실제 업체의 요구를
             받아 개발하고 배포까지 진행 중인 실무형 프로젝트입니다.
@@ -185,6 +251,7 @@ function Projects() {
               rel="noreferrer"
             >
               Live 서비스 보기
+              <span className="btn-arrow" aria-hidden="true">→</span>
             </a>
             <a
               className="btn btn-ghost"
@@ -193,6 +260,7 @@ function Projects() {
               rel="noreferrer"
             >
               GitHub
+              <span className="btn-arrow" aria-hidden="true">→</span>
             </a>
           </div>
         </article>
@@ -203,15 +271,16 @@ function Projects() {
 
 function Contact() {
   return (
-    <section id="contact">
+    <section id="contact" className="contact">
       <div className="container">
-        <h2 className="section-title">Contact</h2>
-        <p className="contact-lead">
+        <p className="section-eyebrow reveal">04 — Contact</p>
+        <h2 className="contact-lead reveal reveal-d1">
           함께 만들고 싶은 것이 있다면,
           <br />
-          GitHub에서 만나요.
-        </p>
-        <div className="project-links">
+          GitHub에서 <em>만나요</em>
+          <span className="title-dot">.</span>
+        </h2>
+        <div className="project-links reveal reveal-d2">
           <a
             className="btn btn-primary"
             href={GITHUB}
@@ -219,6 +288,7 @@ function Contact() {
             rel="noreferrer"
           >
             GitHub — @dddz223
+            <span className="btn-arrow" aria-hidden="true">→</span>
           </a>
         </div>
       </div>
@@ -238,6 +308,7 @@ function Footer() {
 }
 
 export default function App() {
+  useScrollReveal()
   return (
     <>
       <Nav />
