@@ -206,20 +206,11 @@ function Projects() {
           <div className="project-links">
             <a
               className="btn btn-primary"
-              href="https://poketmon-app-kappa.vercel.app"
+              href="https://poca-app-kappa.vercel.app/"
               target="_blank"
               rel="noreferrer"
             >
               Live 서비스 보기
-              <span className="btn-arrow" aria-hidden="true">→</span>
-            </a>
-            <a
-              className="btn btn-ghost"
-              href={`${GITHUB}/poketmon-app`}
-              target="_blank"
-              rel="noreferrer"
-            >
-              GitHub
               <span className="btn-arrow" aria-hidden="true">→</span>
             </a>
           </div>
@@ -251,15 +242,6 @@ function Projects() {
               rel="noreferrer"
             >
               Live 서비스 보기
-              <span className="btn-arrow" aria-hidden="true">→</span>
-            </a>
-            <a
-              className="btn btn-ghost"
-              href={`${GITHUB}/tcg-tracker`}
-              target="_blank"
-              rel="noreferrer"
-            >
-              GitHub
               <span className="btn-arrow" aria-hidden="true">→</span>
             </a>
           </div>
